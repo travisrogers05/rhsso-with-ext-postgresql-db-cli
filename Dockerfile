@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/redhat-sso-7/sso73-openshift:latest
+FROM registry.access.redhat.com/redhat-sso-7/sso72-openshift:1.4-3
 
 MAINTAINER <name> <name@.com>
 
