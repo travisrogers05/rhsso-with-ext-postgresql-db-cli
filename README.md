@@ -8,29 +8,24 @@ This example does not add a Postgresql JDBC driver as the Red Hat SSO image curr
 
 This repository provides a working reference which includes:
 
-- An `.s2i` directory that includes an `environment` [file](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/.s2i/environment) that sets `CUSTOM_INSTALL_DIRECTORIES=extensions`.  This is used by scripts provided in the Red Hat SSO image to allow for customization to take place at pod deploy time.
-- A `configuration` [directory](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/tree/master/configuration) that contains
-  - A `datasources.env` [file](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/tree/master/configuration/datasources.env) that provides all the specifics for the datasource.  These settings are incorporated into the Red Hat SSO configuration at pod deploy time.  Multiple datasources can be provided, although this example uses only one.  Refer to the [JBoss EAP for Openshift documentation](https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.1/html-single/red_hat_jboss_enterprise_application_platform_for_openshift/#S2I-Artifacts) for further details about the expected contents of this file.
-- A [template file](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json) that is derived from an [example template](https://github.com/jboss-openshift/application-templates/blob/ose-v1.4.13/sso/sso72-https.json) provided by Red Hat.  The template is [set to use](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L452-#L456) the [RHSSO 7.2 imagestream](https://access.redhat.com/containers/#/registry.access.redhat.com/redhat-sso-7/sso72-openshift).  
+- An `.s2i` directory that includes an `environment` [file](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/.s2i/environment) that sets `CUSTOM_INSTALL_DIRECTORIES=extensions`.  This is used by scripts provided in the Red Hat SSO image to allow for customization to take place at pod deploy time.
+- An `extensions` directory that includes
+  - a [install.sh](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/extensions/install.sh) file that copies required files/scripts into the container.
+  - a [postconfigure.sh](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/extensions/postconfigure.sh) file that executes a JBoss cli batch file.
+  - a JBoss cli batch file [actions.cli](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/extensions/actions.cli) that creates and configures the Postgresql datasource
+- A [template file](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/sso72-https-ext-postgresql-cli.json) that is derived from an [example template](https://github.com/jboss-openshift/application-templates/blob/ose-v1.4.13/sso/sso72-https.json) provided by Red Hat.  The template is [set to use](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/sso72-https-ext-postgresql-cli.json#L376-#L384) the [RHSSO 7.2 imagestream](https://access.redhat.com/containers/#/registry.access.redhat.com/redhat-sso-7/sso72-openshift).  
 - The template contains the following modifications: 
-  - Added a [buildconfig](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L430-#L487) to allow the inclusion of files from this git repo into the image.
-  - Added an [imagestream definition](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L420-#L429) for the resulting RHSSO container that we are creating.
-  - Added [parameters](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L45-#L65) for building from a git repository
-  - Added parameters related to the database
-    - [JNDI and database name](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L155-#L168)
-    - [RHSSO service host and port](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L259-#L272)
-  - Added environment variable to the deploymentconfig
-    - [SSO_POSTGRES_SERVICE_HOST and PORT](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L730-#L737)
-    - [SSODB_USERNAME, PASSWORD and DATABASE](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L610-#L621)
-  - Note that the prefix mapping values have been set for [DB_SERVICE_PREFIX_MAPPING](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L602-#L605) and [TX_DATABASE_PREFIX_MAPPING](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L622-#L625).  These values are used by scripts in the RHSSO container to dynamically configure our datasource at deploy time.
-  - Added the `ENV_FILES` [environment variable](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json#L638-#L641) to allow for providing datasource settings to a pod at deploy time.
+  - Added a [buildconfig](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/sso72-https-ext-postgresql-cli.json#L356-#L413) to allow the inclusion of files from this git repo into the image.
+  - Added an [imagestream definition](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/sso72-https-ext-postgresql-cli.json#L346-#L355) for the resulting RHSSO container that we are creating.
+  - Added [parameters](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/sso72-https-ext-postgresql-cli.json#L45-#L65) for building from a git repository
 
 
 ## How it works
 
-The modified template [sso72-https-postgresql-external.json](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/sso72-https-postgresql-external.json) is used to introduce a buildconfig that will incorporate the [datasources.env](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/configuration/datasources.env) file which is used to describe and configure the database for the RHSSO pod to use.  The build process clones this git repository into a build pod that performs a build of the RHSSO container.  The Openshift build process produces a container image to be used for an RHSSO pod.
+The modified template [sso72-https-ext-postgresql-cli.json](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/sso72-https-ext-postgresql-cli.json) is used to introduce a buildconfig that will incorporate files contained within a Git repository.  The default repository is [this repo](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli).  The build process clones this git repository into a build pod that performs a build of the RHSSO container.  The Openshift build process produces a container image to be used for an RHSSO pod.
 
-When the resulting container image is used to produce an RHSSO pod, the pod is configured at deploy time to include datasource settings provided by the [datasources.env](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db/blob/master/configuration/datasources.env).  The JBoss EAP configuration file (`/opt/eap/standalone/configuration/standalone-openshift.xml`) that is provided in the RHSSO container is updated to include the KeycloakDS datasource configuration backed by a Postgresql database.
+When the resulting container image is used to produce an RHSSO pod, the pod is configured at deploy time to include datasource settings provided by the [actions.cli](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/extensions/actions.cli).  During the deployment phase, the [postconfigure.sh](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/extensions/postconfigure.sh) executes the [actions.cli](https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli/blob/master/extensions/actions.cli) file in turn configuring the RHSSO based container to include a Postgresql datasource representing the external database.
+
 
 ## Requirements
 - [Openshift command line client (oc)](https://www.okd.io/download.html)
@@ -43,14 +38,14 @@ When the resulting container image is used to produce an RHSSO pod, the pod is c
 - Create a project and a serviceaccount.  Then add visibility for the system servieaccount.
 
 ~~~
-oc new-project rhsso-ext-postgres
+oc new-project rhsso-ext-postgres-cli
 oc create serviceaccount sso-service-account
 oc policy add-role-to-user view system:serviceaccount:$(oc project -q):sso-service-account
 ~~~
 
 - Create the template in your project namespace or in the openshift namespace, should you wish for the template to be viewable by other users/developers.
 ~~~
-oc create -f sso72-https-postgresql-external.json -n rhsso-ext-postgres
+oc create -f sso72-https-ext-postgresql-cli.json -n rhsso-ext-postgres-cli
 ~~~
 
 - Create (or supply existing) certs and trust stores for encrypted communication.  I have a script for this, so you will see environment variables being referenced.  This is just for reference as you likely have your own certs and trust stores to use.  Use the appropriate values when creating the RHSSO pod in a later step.  You can find out more about these steps in the [RHSSO documentation](https://access.redhat.com/documentation/en-us/red_hat_single_sign-on/7.3/html-single/red_hat_single_sign-on_for_openshift/#advanced-concepts-Configuring-Keystores).
@@ -105,16 +100,13 @@ oc secret add sa/sso-service-account secret/$HTTPS_SECRET
 
 - Create the RHSSO pod passing in some parameters that you may want to specifically set.
 ~~~
-oc process openshift//sso72-https-postgresql-external \
--p APPLICATION_NAME=rhsso-ext-postgres-app \
+oc process openshift//sso72-https-ext-postgresql-cli \
+-p APPLICATION_NAME=rhsso-ext-postgres-cli-app \
 -p IMAGE_STREAM_NAMESPACE=openshift \
--p SOURCE_REPOSITORY_URL=https://github.com/travisrogers05/rhsso-with-ext-postgresql-db \
+-p SOURCE_REPOSITORY_URL=https://github.com/travisrogers05/rhsso-with-ext-postgresql-db-cli \
 -p SOURCE_REPOSITORY_REF=master \
--p DB_DATABASE=rhsso \
--p DB_USERNAME=joe \
--p DB_PASSWORD=user \
--p HOSTNAME_HTTP=rhsso-ext-postgres-app-rhsso-ext-postgres.example.com \
--p HOSTNAME_HTTPS=secure-rhsso-ext-postgres-app-rhsso-ext-postgres.example.com \
+-p HOSTNAME_HTTP=rhsso-ext-postgres-cli-app-rhsso-ext-postgres-cli.example.com \
+-p HOSTNAME_HTTPS=secure-rhsso-ext-postgres-cli-app-rhsso-ext-postgres-cli.example.com \
 -p HTTPS_KEYSTORE=sso-https.jks \
 -p HTTPS_KEYSTORE_TYPE=jks \
 -p HTTPS_NAME=sso-https-key \
@@ -126,8 +118,6 @@ oc process openshift//sso72-https-postgresql-external \
 -p SSO_ADMIN_USERNAME=admin \
 -p SSO_ADMIN_PASSWORD=admin \
 -p SSO_REALM=demo \
--p SSO_SERVICE_USERNAME=sso \
--p SSO_SERVICE_PASSWORD=password \
 -p SSO_TRUSTSTORE=truststore.jks \
 -p SSO_TRUSTSTORE_PASSWORD=password \
 -p SSO_TRUSTSTORE_SECRET=sso-app-secret \
